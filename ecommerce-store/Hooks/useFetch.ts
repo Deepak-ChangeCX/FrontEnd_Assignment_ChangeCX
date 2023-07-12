@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useState , useEffect } from "react";
 
-const useFetch = (url) =>{
+const useFetch = (url:any) =>{
     const [products , setProducts] = useState([])
     const [loading , setLoading] = useState(true);
     const [err , setErr] = useState(null);

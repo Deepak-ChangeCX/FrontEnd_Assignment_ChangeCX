@@ -14,7 +14,7 @@ interface CartItem {
 
 
 export default function Cart({ CloseCart }: CartProps) {
-  const value = useContext(AddToCartContext);
+  const value = useContext(AddToCartContext) as any;
   const ProductItems = value.state.cartItems
 
   return (

@@ -2,11 +2,11 @@ import AddToCartContext from "@/context/CartContext";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 export default function CheckOut() {
-  const cartValue = useContext(AddToCartContext)
+  const cartValue = useContext(AddToCartContext) as any
   const cart = cartValue.state.cartItems
 
-  const handleDeleteItem = (product)=>{
-    const FilterList = cart.filter((items) => items.id !== product.id)
+  const handleDeleteItem = (product:any)=>{
+    const FilterList = cart.filter((items:any) => items.id !== product.id)
     cartValue.setCartItems(FilterList)
     cartValue.setTotal(cartValue.state.total - Math.ceil(product.price - (product.price*10/100)) )
   }

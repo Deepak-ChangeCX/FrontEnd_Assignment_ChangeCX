@@ -12,10 +12,10 @@ export default function HomePage() {
     images: string[];
   };
 
-  const products = useContext(AppContext);
-  const productDetail = useContext(ProductIdContext);
+  const products = useContext(AppContext) as any;
+  const productDetail = useContext(ProductIdContext) as any;
   
-  const handleData = (data) => {
+  const handleData = (data:any) => {
     productDetail.setProduct(data);
   };
 

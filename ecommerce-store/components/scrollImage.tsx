@@ -4,17 +4,17 @@ import AppContext from "@/context/context";
 import ProductIdContext from "@/context/ProductId";
 import Link from "next/link";
 
-export default function ScrollImage({ id }) {
+export default function ScrollImage({ id }:any) {
   const ImageContainerRef = useRef<HTMLDivElement>(null);
-  const value = useContext(ProductIdContext);
-  const Products = useContext(AppContext);
+  const value = useContext(ProductIdContext) as any;
+  const Products = useContext(AppContext) as any;
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
-    setRelatedProducts(Products.filter((items) => items.id !== id));
+    setRelatedProducts(Products.filter((items:any) => items.id !== id));
   }, [Products, id]);
 
-  const handleData = (data) => {
+  const handleData = (data:any) => {
     value.setProduct(data);
   };
 
@@ -49,7 +49,7 @@ export default function ScrollImage({ id }) {
         className="overflow-x-auto whitespace-nowrap py-2 px-2 image-cont w-full h-1/4"
         ref={ImageContainerRef}
       >
-        {relatedProducts?.map((items, idx) => (
+        {relatedProducts?.map((items:any, idx) => (
           <div
             className="h-full w-full object-cover lg:h-1/4 lg:w-[13em] mr-4 inline-block"
             key={idx}

@@ -6,10 +6,10 @@ import ProductIdContext from "@/context/ProductId";
 import AddToCartContext from "@/context/CartContext";
 
 export default function ProductPage() {
-  const value = useContext(ProductIdContext);
-  const cartvalue = useContext(AddToCartContext)
+  const value = useContext(ProductIdContext) as any;
+  const cartvalue = useContext(AddToCartContext) as any;
   const [productInfoVisible, setProductInfoVisible] = useState(false);
-  const [productDetail, setProduct] = useState({});
+  const [productDetail, setProduct] = useState({}) as any;
   const [image , setImages] = useState('')
   const [refundPolicyVisible, setRefundPolicyVisible] = useState(false);
   const [shippingInfoVisible, setShippingInfoVisible] = useState(false);
@@ -22,7 +22,7 @@ export default function ProductPage() {
     // console.log(product.product)
   }, [value]);
 
-  const handleChangeImage = (link)=>{
+  const handleChangeImage = (link:any)=>{
      setImages(link)
   }
 
