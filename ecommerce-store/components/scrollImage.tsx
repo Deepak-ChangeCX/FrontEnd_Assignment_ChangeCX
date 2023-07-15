@@ -4,15 +4,16 @@ import AppContext from "@/context/context";
 import ProductIdContext from "@/context/ProductId";
 import Link from "next/link";
 
-export default function ScrollImage({ id }:any) {
+export default function ScrollImage({ category }:any) {
   const ImageContainerRef = useRef<HTMLDivElement>(null);
   const value = useContext(ProductIdContext) as any;
-  const Products = useContext(AppContext) as any;
+  const {products} = useContext(AppContext) as any;
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
-    setRelatedProducts(Products.filter((items:any) => items.id !== id));
-  }, [Products, id]);
+
+    setRelatedProducts(products.filter((items:any) => items.category === category ));
+  }, [products, category]);
 
   const handleData = (data:any) => {
     value.setProduct(data);
@@ -21,7 +22,7 @@ export default function ScrollImage({ id }:any) {
   const scrollLeft = () => {
     if (ImageContainerRef.current) {
       ImageContainerRef.current.scrollBy({
-        left: -220,
+        left: -260,
         behavior: "smooth",
       });
     }
@@ -29,7 +30,7 @@ export default function ScrollImage({ id }:any) {
   const scrollRight = () => {
     if (ImageContainerRef.current) {
       ImageContainerRef.current.scrollBy({
-        left: 220,
+        left: 260,
         behavior: "smooth",
       });
     }
@@ -51,17 +52,17 @@ export default function ScrollImage({ id }:any) {
       >
         {relatedProducts?.map((items:any, idx) => (
           <div
-            className="h-full w-full object-cover lg:h-1/4 lg:w-[13em] mr-4 inline-block"
+            className="h-full w-full object-cover lg:h-1/4 lg:w-[15em] mr-4 inline-block shadow-lg"
             key={idx}
           >
             <Link href="/Product">
               <Image
                 onClick={() => handleData(items)}
-                className="w-full h-80 lg:w-60 lg:h-60"
+                className="w-full h-80 lg:w-64 lg:h-64"
                 src={items.images[0]}
                 alt="Image1"
-                width={400}
-                height={400}
+                width={600}
+                height={600}
               />
             </Link>
           </div>

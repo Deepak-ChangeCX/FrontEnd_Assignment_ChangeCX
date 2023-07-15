@@ -1,15 +1,18 @@
 import AddToCartContext from "@/context/CartContext";
+import Link from "next/link";
+import AppContext from "@/context/context";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+import ProductIdContext from "@/context/ProductId";
 export default function CheckOut() {
-  const cartValue = useContext(AddToCartContext) as any
-  const cart = cartValue.state.cartItems
+  const cartValue = useContext(AddToCartContext) as any;
+  const ProductContext = useContext(ProductIdContext) as any;
+  const cart = cartValue.state.cartItems;
 
-  const handleDeleteItem = (product:any)=>{
-    const FilterList = cart.filter((items:any) => items.id !== product.id)
-    cartValue.setCartItems(FilterList)
-    cartValue.setTotal(cartValue.state.total - Math.ceil(product.price - (product.price*10/100)) )
-  }
+  const handleDeleteItem = (product: any) => {
+    const FilterList = cart.filter((items: any) => items.id !== product.id);
+    cartValue.setCartItems(FilterList);
+  };
 
   return (
     <div className="px-5 mt-10 lg:pl-48">
@@ -17,35 +20,62 @@ export default function CheckOut() {
         <div className="w-full lg:w-3/5">
           <p className="border-gray-500 border-b-2 pb-4 text-lg">My cart</p>
           {/* product added */}
-         {cart?.map((items:any , idx:any)=>(
-           <div className="border-b-2 border-gray-500 pb-4" key={idx}>
-           <div className="mt-4 flex">
-             <div>
-               <Image
-                 className="inline-block w-24 h-28"
-                 src={items.images[0]}
-                 alt="ProductImage"
-                 width={600}
-                 height={600}
-               />
-             </div>
-             <div className="ml-4 w-4/5">
-               <div className="flex gap-5 items-center">
-                 <p className="mr-auto">{items.title}</p>
-                 <div className="border-2 border-gray-600 w-16 h-6 relative overflow-hidden grid grid-cols-3 place-content-center text-center">
-                   <button>+</button>
-                   <span>1</span>
-                   <button>-</button>
-                 </div>
-                 <div className="text-gray-gray-600">${Math.ceil(items.price - items.price * 10 / 100)}.00</div>
-                 <div className="text-gray-600 cursor-pointer" onClick={()=>handleDeleteItem(items)}>X</div>
-               </div>
-               <p className="mt-4">${Math.ceil(items.price - items.price * 10 / 100)}.00</p>
-               <p className="text-gray-500">Size: Medium</p>
-             </div>
-           </div>
-         </div>
-         ))}
+          {cart?.map((items: any, idx: any) => (
+            <div
+              className="border-b-2 border-gray-500 pb-4"
+              key={idx}
+              onClick={() => ProductContext.handleData(items)}
+            >
+              <div className="mt-4 flex">
+                <div>
+                  <Link href="/Product">
+                    <Image
+                      className="inline-block w-24 h-28"
+                      src={items.images[0]}
+                      alt="ProductImage"
+                      width={600}
+                      height={600}
+                    />
+                  </Link>
+                </div>
+                <div className="ml-4 w-4/5">
+                  <div className="flex gap-5 items-center">
+                    <p className="mr-auto">
+                      {items.name?.split("").splice(0, 15).join("")}
+                    </p>
+                    <div className="border-2 border-gray-600 w-16 h-6 relative overflow-hidden grid grid-cols-3 place-content-center text-center">
+                      <button onClick={() => cartValue.IncreaseQty(items.id)}>
+                        +
+                      </button>
+                      <span>{items.qty}</span>
+                      <button onClick={() => cartValue.DecreseQty(items.id)}>
+                        -
+                      </button>
+                    </div>
+                    <div className="text-gray-gray-600">
+                      $
+                      {items.qty *
+                        Math.ceil(items.price - (items.price * 10) / 100)}
+                      .00
+                    </div>
+                    <div
+                      className="text-gray-600 cursor-pointer"
+                      onClick={() => handleDeleteItem(items)}
+                    >
+                      X
+                    </div>
+                  </div>
+                  <p className="mt-4">
+                    $
+                    {items.qty *
+                      Math.ceil(items.price - (items.price * 10) / 100)}
+                    .00
+                  </p>
+                  <p className="text-gray-500">Size: Medium</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <div className="w-full lg:w-1/3 ">
           <p className="border-gray-500 border-b-2 pb-4 text-lg">
@@ -60,10 +90,15 @@ export default function CheckOut() {
           </div>
           <div className="flex text-xl mt-5 mb-8">
             <p className="mr-auto">Total</p>
-            <p>${cartValue.state.total}.00</p>
+            <p className="font-bold text-orange-500">
+              ${cartValue.state.total}.00
+            </p>
           </div>
           <div className="text-center">
-            <button className="w-full border-2 border-orange-600 py-2 text-white bg-orange-500">
+            <button
+              onClick={() => cartValue.EmptyCart()}
+              className="w-full border-2 border-orange-600 py-2 text-white bg-orange-500"
+            >
               CheckOut
             </button>
           </div>

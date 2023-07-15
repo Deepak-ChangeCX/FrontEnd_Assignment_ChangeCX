@@ -12,12 +12,10 @@ export default function HomePage() {
     images: string[];
   };
 
-  const products = useContext(AppContext) as any;
+  const {products} = useContext(AppContext) as any;
   const productDetail = useContext(ProductIdContext) as any;
   
-  const handleData = (data:any) => {
-    productDetail.setProduct(data);
-  };
+
 
   return (
     <main>
@@ -106,9 +104,10 @@ export default function HomePage() {
 
       {/* 3 Banner Images  */}
 
-      <section className="w-full flex lg:h-80 gap-0 md:gap-1 flex-wrap md:h-40 md:flex-nowrap overflow-hidden ">
+      <section className="w-full flex h-80 md:h-80 gap-0 md:gap-1 flex-wrap md:flex-nowrap overflow-hidden ">
         <div className="w-1/2 md:w-2/6 h-40 md:h-80 overflow-hidden">
           <Image
+          className="object-top object-cover h-full"
             src="https://images.meesho.com/images/products/262187470/n19jr_512.jpg"
             alt="Image1"
             width={600}
@@ -117,6 +116,7 @@ export default function HomePage() {
         </div>
         <div className="w-1/2 md:w-2/6 h-40 md:h-80 overflow-hidden">
           <Image
+          className="object-top object-cover h-full"
             src="https://images.meesho.com/images/products/140406869/liouc_512.webp"
             alt="Image1"
             width={600}
@@ -125,10 +125,11 @@ export default function HomePage() {
         </div>
         <div className="w-full md:w-1/2 h-40 md:h-80 overflow-hidden mt-1 md:mt-0">
           <Image
+          className="object-top object-cover h-full"
             src="https://luxurylondon.co.uk/wp-content/uploads/2022/10/white-shirts-hero-1465x1099-c-center.jpg"
             alt="Image1"
-            width={600}
-            height={600}
+            width={1200}
+            height={1200}
           />
         </div>
       </section>
@@ -150,10 +151,10 @@ export default function HomePage() {
       {/* All Products  */}
       <section className="flex flex-wrap gap-5 mt-14 mb-14 justify-center">
         {products?.map((items:any, idx:any) => (
-          <div key={idx} onClick={() => handleData(items)}>
+          <div key={idx} onClick={() => productDetail.handleData(items)} className="w-64 h-auto border-2 py-2 border-gray-200 overflow-hidden px-2 shadow-lg relative">
             <div>
               {/* <img src={items.images[0]} alt="shirts" className='w-64 h-64'/> */}
-              <div className="w-64 h-64 overflow-hidden">
+              <div className="w-64 h-64 overflow-hidden ">
                 <Link href="/Product">
                   <Image
                     src={items.images[0]}
@@ -163,8 +164,9 @@ export default function HomePage() {
                   />
                 </Link>
               </div>
+              <div className={`${items.bestSeller ? "absolute" : "hidden"} top-0 right-0 bg-orange-500 text-white px-2 rounded-bl-xl rounded-tr-xl shadow-lg`}>Best Seller</div>
             </div>
-            <p>{items.brand}</p>
+            <p>{items.name.split("").splice(0,20).join("")}</p>
             <p className="text-orange-500">${items.price}.00</p>
           </div>
         ))}

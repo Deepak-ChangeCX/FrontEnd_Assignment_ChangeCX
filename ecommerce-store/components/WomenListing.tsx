@@ -1,20 +1,20 @@
-import useFetch from "@/Hooks/useFetch";
 import Image from "next/image";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import ProductIdContext from "@/context/ProductId";
+import AppContext from "@/context/context";
 
 export default function WomenPage(){
-  const {products:womenCloth , loading , err} = useFetch("https://dummyjson.com/products/category/womens-dresses")
+  const [womenCloth , setWomenCloth] = useState([])
+  const {products} = useContext(AppContext) as any;
   const value = useContext(ProductIdContext) as any
 
-  if(loading){
-    return <div className="text-center"><h1>Loading....</h1></div>
-  }
   const handleData = (data:any)=>{
     value.setProduct(data)
     }
-  
+  useEffect(()=>{
+  setWomenCloth(products.filter((items:any)=> items.category !== "mens-shirts"))
+  },[products])
     return(
         <>
         <main>
@@ -32,7 +32,7 @@ export default function WomenPage(){
 </div>
         <div className='flex flex-wrap gap-5 mt-14 mb-14 justify-center'>
           {womenCloth?.map((items:any , idx)=>(
-            <div key={idx} onClick={()=>handleData(items)}>
+            <div key={idx} onClick={()=>handleData(items)}  className="w-64 h-auto border-2 py-2 border-gray-200 overflow-hidden px-2 shadow-lg relative">
             <div className="w-64 h-64 overflow-hidden">
             <Link href="/Product">
                 <Image
@@ -42,8 +42,9 @@ export default function WomenPage(){
                   height={200}
                 />
                 </Link>
+                <div className={`${items.bestSeller ? "absolute" : "hidden"} top-0 right-0 bg-orange-500 text-white px-2 rounded-bl-xl rounded-tr-xl shadow-lg`}>Best Seller</div>
               </div>
-            <p>{items.brand}</p>
+            <p>{items.name?.split("").splice(0,20).join("")}</p>
             <p className='text-orange-500'>${items.price}.00</p>
             </div>
           ))}

@@ -9,10 +9,10 @@ import CartContextProvider from "@/context/AddToCartContext";
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <main className="m-4 md:m-10 mx-2 md:mx-20 max-w-full overflow-x-hidden">
-      <NavBar></NavBar>
       <ProductContextProvider>
         <ProductIdContextProvider>
           <CartContextProvider>
+            <NavBar></NavBar>
             <Component {...pageProps} />
           </CartContextProvider>
         </ProductIdContextProvider>

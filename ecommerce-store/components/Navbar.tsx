@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Link from "next/link";
+import AddToCartContext from "@/context/CartContext";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const cartvalue = useContext(AddToCartContext) as any
+  const cartItems = cartvalue.state.cartItems
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
@@ -69,7 +72,7 @@ export default function NavBar() {
           </span>
           Log In
         </div>
-        <div className="px-4 py-2 hover:text-orange-500">
+        <div className="px-4 py-2 hover:text-orange-500 relative">
           <Link href="/Checkout">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -87,6 +90,7 @@ export default function NavBar() {
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
+            <div className="absolute top-0 right-1 text-s font-bold bg-black w-5 h-5 text-orange-500 rounded-full text-center"><p className="relative bottom-1">{cartItems?.length}</p></div>
           </Link>
         </div>
       </div>

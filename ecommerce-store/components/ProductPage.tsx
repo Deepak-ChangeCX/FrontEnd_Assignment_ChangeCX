@@ -10,7 +10,7 @@ export default function ProductPage() {
   const cartvalue = useContext(AddToCartContext) as any;
   const [productInfoVisible, setProductInfoVisible] = useState(false);
   const [productDetail, setProduct] = useState({}) as any;
-  const [image , setImages] = useState('')
+  const [image, setImages] = useState("");
   const [refundPolicyVisible, setRefundPolicyVisible] = useState(false);
   const [shippingInfoVisible, setShippingInfoVisible] = useState(false);
   const [showCart, setShowCart] = useState(false);
@@ -18,23 +18,32 @@ export default function ProductPage() {
   useEffect(() => {
     const product = value.state;
     setProduct(product.product);
-    setImages(product.product.images[0])
+    setImages(product.product.images[0]);
     // console.log(product.product)
   }, [value]);
 
-  const handleChangeImage = (link:any)=>{
-     setImages(link)
-  }
-
-  const toggleCart = () => {
-    setShowCart(true);
-    cartvalue.setCartItems([...cartvalue.state.cartItems , productDetail])
-    cartvalue.setTotal(cartvalue.state.total + Math.ceil(productDetail?.price - (productDetail?.price * 10 / 100)))
+  const handleChangeImage = (link: any) => {
+    setImages(link);
   };
 
-  const CloseCart = ()=>{
-    setShowCart(false)
-  }
+  const toggleCart = () => {
+    const existingProduct = cartvalue.state.cartItems.find((item:any) => item.id === productDetail.id);
+    if (existingProduct) {
+      alert('Product already in cart');
+      return; // Exit the function if the product already exists in the cart
+    }
+
+    setShowCart(true);
+    cartvalue.setCartItems([...cartvalue.state.cartItems, productDetail]);
+    cartvalue.setTotal(
+      cartvalue.state.total +
+        Math.ceil(productDetail?.price - (productDetail?.price * 10) / 100)
+    );
+  };
+
+  const CloseCart = () => {
+    setShowCart(false);
+  };
 
   const toggleProductInfo = () => {
     setProductInfoVisible(!productInfoVisible);
@@ -49,15 +58,18 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="px-5 mt-10 lg:pl-48">
+    <div className="px-5 mt-10 lg:pl-28">
       <style>
         {`.image-cont::-webkit-scrollbar{
                 display:none;
             }`}
       </style>
       <div className="flex flex-wrap items-center mb-10">
-        <div className="mr-auto mt-2 lg:mr-64">
-          Home/{productDetail.category === "mens-shirts" ? "Men" : "Women"}/<span className="text-gray-500">{productDetail?.brand}</span>
+        <div className="mr-auto mt-2 lg:mr-96">
+          Home/{productDetail.category === "mens-shirts" ? "Men" : "Women"}/
+          <span className="text-gray-500">
+            {productDetail.name?.split("").splice(0, 5).join("")}
+          </span>
         </div>
         <div className="text-gray-500">&lt; Prev | Next &gt;</div>
       </div>
@@ -130,15 +142,15 @@ export default function ProductPage() {
       <div className="flex flex-wrap">
         <div className="w-full lg:w-1/2">
           {Object.keys(productDetail).length > 0 ? (
-
-            <Image
-              className="w-11/12 h-84"
-              src={image}
-              alt="MaxImage"
-              width={600}
-              height={600}
-              
-            />
+            <div className="w-auto h-84 overflow-hidden ">
+              <Image
+                className="w-11/12 h-84"
+                src={image}
+                alt="MaxImage"
+                width={600}
+                height={600}
+              />
+            </div>
           ) : (
             <div className="text-center">
               <p>Loading....</p>
@@ -147,54 +159,41 @@ export default function ProductPage() {
 
           {Object.keys(productDetail).length > 0 && (
             <div className="mt-5 ml-2 flex flex-wrap gap-2">
-              <Image
-                onClick={()=>handleChangeImage(productDetail.images[1])}
-                className="w-12 h-12 border-2 hover:border-orange-500 cursor-pointer"
-                src={productDetail?.images[1]}
-                alt="MaxImage"
-                width={600}
-                height={600}
-              />
-              <Image
-                className="w-12 h-12 border-2 hover:border-orange-500 cursor-pointer"
-                onClick={()=>handleChangeImage(productDetail.images[2])}
-                src={productDetail?.images[2]}
-                alt="MaxImage"
-                width={600}
-                height={600}
-              />
-              <Image
-                className="w-12 h-12 border-2 hover:border-orange-500 cursor-pointer"
-                onClick={()=>handleChangeImage(productDetail.images[3])}
-                src={productDetail?.images[3]}
-                alt="MaxImage"
-                width={600}
-                height={600}
-              />
-              <Image
-                className="w-12 h-12 border-2 hover:border-orange-500 cursor-pointer"
-                onClick={()=>handleChangeImage(productDetail.images[0])}
-                src={productDetail?.images[0]}
-                alt="MaxImage"
-                width={600}
-                height={600}
-              />
+            {productDetail.images?.map((items:any , idx:any)=>(
+              <div key={idx}>
+                            <Image
+                            onClick={() => handleChangeImage(items)}
+                            className="w-12 h-14 border-2 hover:border-orange-500 cursor-pointer"
+                            src={items}
+                            alt="MaxImage"
+                            width={600}
+                            height={600}
+                          />
+                          </div>
+            ))}
             </div>
           )}
-          <p className="text-gray-950 text-justify mr-8">
-            {productDetail?.description}
+          <p className="text-gray-950 mt-2 mr-8">
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quas
+            perferendis, veniam dolorem vero ipsum libero impedit enim.
           </p>
         </div>
 
         {/* 2nd Conatiner - Details */}
-        <div className="w-full lg:w-1/3">
+        <div className="w-full lg:w-2/5">
           <p className="text-4xl text-black font-medium p-0 m-0">
-            {productDetail?.title}
+            {productDetail.name?.split("").splice(0, 25).join("")}
           </p>
           <p className="text-gray-600 text-sm mt-3">SKU: 0011</p>
           <p className="mt-4 text-orange-500 flex gap-4 text-xl">
             <span className="line-through"> ${productDetail?.price}.00 </span>
-            <span>${Math.ceil(productDetail?.price - (productDetail?.price * 10 / 100))}.00</span>
+            <span>
+              $
+              {Math.ceil(
+                productDetail?.price - (productDetail?.price * 10) / 100
+              )}
+              .00
+            </span>
           </p>
           <div className="mt-5">
             <p>Color</p>
@@ -221,9 +220,10 @@ export default function ProductPage() {
             <p>Quantity</p>
             <div className="mt-2">
               <input
+              value={productDetail?.qty}
                 type="number"
                 className="w-14 text-gray-500 border-2 border-gray-300 text-center"
-                placeholder="1"
+                
               />
             </div>
             <div className="mt-2">
@@ -325,7 +325,7 @@ export default function ProductPage() {
         <p className="text-center text-4xl mb-6 font-medium">
           Related Products
         </p>
-        <ScrollImage id={productDetail.id}></ScrollImage>
+        <ScrollImage category={productDetail.category}></ScrollImage>
       </div>
       {showCart && <Cart CloseCart={CloseCart}></Cart>}
     </div>
