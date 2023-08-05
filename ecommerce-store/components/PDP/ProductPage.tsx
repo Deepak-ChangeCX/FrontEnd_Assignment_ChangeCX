@@ -1,13 +1,21 @@
 import { useContext, useEffect, useState } from "react";
 import ScrollImage from "./scrollImage";
 import Image from "next/image";
-import Cart from "./Cart";
+import Cart from "../Cart/Cart";
 import ProductIdContext from "@/context/ProductId";
-import AddToCartContext from "@/context/CartContext";
+import axios from "axios";
+import ToastContext from "@/context/ToastContext";
+import { AddToCartContext } from "@/context/AddToCartContext";
+import { useRouter } from "next/router";
+const URL = "http://localhost:9000";
 
 export default function ProductPage() {
-  const value = useContext(ProductIdContext) as any;
+  const router = useRouter();
+  // const value = useContext(ProductIdContext) as any;
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [qty, setQty] = useState(1);
   const cartvalue = useContext(AddToCartContext) as any;
+  const { toast } = useContext(ToastContext) as any;
   const [productInfoVisible, setProductInfoVisible] = useState(false);
   const [productDetail, setProduct] = useState({}) as any;
   const [image, setImages] = useState("");
@@ -15,30 +23,97 @@ export default function ProductPage() {
   const [shippingInfoVisible, setShippingInfoVisible] = useState(false);
   const [showCart, setShowCart] = useState(false);
 
+  // useEffect(() => {
+  //   const product = value.state;
+  //   setProduct(product.product);
+  //   if (product?.product?.images && product.product.images.length > 0) {
+  //     setImages(product.product.images[0]);
+  //   }
+  //   setQty(1);
+
+  //   // console.log(product.product)
+  //   // console.log(product)
+  // }, [value]);
+
   useEffect(() => {
-    const product = value.state;
-    setProduct(product.product);
-    setImages(product.product.images[0]);
-    // console.log(product.product)
-  }, [value]);
+    if (router.query.id) {
+      axios
+        .get(`${URL}/api/v1/products/${router.query.id}`, {
+          headers: { authorization: localStorage.getItem("token") },
+        })
+        .then((res) => {
+          // console.log(res.data)
+          setProduct(res.data.product);
+          setImages(res?.data?.product?.images[0]);
+          setQty(1);
+        })
+        .catch((e) => {
+          toast.error(e.response);
+        });
+    }
+  }, [router.query.id]);
+
+  const handleQty = (type: any) => {
+    switch (type) {
+      case "INC":
+        setQty(qty + 1);
+        break;
+      case "DEC":
+        if (qty > 1) {
+          return setQty(qty - 1);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    if (productDetail.category) {
+      axios
+        .get(`${URL}/api/v1/products/category/${productDetail.category}`, {
+          headers: { authorization: localStorage.getItem("token") },
+        })
+        .then((res) => {
+          setRelatedProducts(res.data.products);
+        })
+        .catch((e) => {
+          toast.error(e.response.data.message);
+        });
+    }
+  }, [productDetail]);
+
+  const AddToCart = () => {
+    // console.log(qty);
+
+    CallRequest();
+  };
 
   const handleChangeImage = (link: any) => {
     setImages(link);
   };
 
-  const toggleCart = () => {
-    const existingProduct = cartvalue.state.cartItems.find((item:any) => item.id === productDetail.id);
-    if (existingProduct) {
-      alert('Product already in cart');
-      return; // Exit the function if the product already exists in the cart
-    }
-
-    setShowCart(true);
-    cartvalue.setCartItems([...cartvalue.state.cartItems, productDetail]);
-    cartvalue.setTotal(
-      cartvalue.state.total +
-        Math.ceil(productDetail?.price - (productDetail?.price * 10) / 100)
-    );
+  const CallRequest = () => {
+    axios
+      .patch(
+        `${URL}/api/v1/users/cart`,
+        {
+          product: productDetail,
+          qty: qty,
+        },
+        {
+          headers: { authorization: localStorage.getItem("token") },
+        }
+      )
+      .then((res) => {
+        // console.log(res.data)
+        toast.success(res.data.message);
+        cartvalue.setCartItems([...cartvalue.state.cartItems, productDetail]);
+        setShowCart(true);
+      })
+      .catch((e) => {
+        toast.error(e.response.data.message);
+      });
   };
 
   const CloseCart = () => {
@@ -68,7 +143,7 @@ export default function ProductPage() {
         <div className="mr-auto mt-2 lg:mr-96">
           Home/{productDetail.category === "mens-shirts" ? "Men" : "Women"}/
           <span className="text-gray-500">
-            {productDetail.name?.split("").splice(0, 5).join("")}
+            {productDetail.title?.split("").splice(0, 5).join("")}
           </span>
         </div>
         <div className="text-gray-500">&lt; Prev | Next &gt;</div>
@@ -159,18 +234,18 @@ export default function ProductPage() {
 
           {Object.keys(productDetail).length > 0 && (
             <div className="mt-5 ml-2 flex flex-wrap gap-2">
-            {productDetail.images?.map((items:any , idx:any)=>(
-              <div key={idx}>
-                            <Image
-                            onClick={() => handleChangeImage(items)}
-                            className="w-12 h-14 border-2 hover:border-orange-500 cursor-pointer"
-                            src={items}
-                            alt="MaxImage"
-                            width={600}
-                            height={600}
-                          />
-                          </div>
-            ))}
+              {productDetail.images?.map((items: any, idx: any) => (
+                <div key={idx}>
+                  <Image
+                    onClick={() => handleChangeImage(items)}
+                    className="w-12 h-14 border-2 hover:border-orange-500 cursor-pointer"
+                    src={items}
+                    alt="MaxImage"
+                    width={600}
+                    height={600}
+                  />
+                </div>
+              ))}
             </div>
           )}
           <p className="text-gray-950 mt-2 mr-8">
@@ -182,20 +257,38 @@ export default function ProductPage() {
         {/* 2nd Conatiner - Details */}
         <div className="w-full lg:w-2/5">
           <p className="text-4xl text-black font-medium p-0 m-0">
-            {productDetail.name?.split("").splice(0, 25).join("")}
+            {productDetail?.title}
           </p>
           <p className="text-gray-600 text-sm mt-3">SKU: 0011</p>
-          <p className="mt-4 text-orange-500 flex gap-4 text-xl">
-            <span className="line-through"> ${productDetail?.price}.00 </span>
-            <span>
-              $
-              {Math.ceil(
-                productDetail?.price - (productDetail?.price * 10) / 100
-              )}
-              .00
-            </span>
-          </p>
-          <div className="mt-5">
+          {productDetail.IsDiscount ? (
+            <p className="mt-4 text-orange-500 flex gap-4 text-xl">
+              <span className="line-through"> ${productDetail?.price}.00 </span>
+              <span>
+                $
+                {Math.ceil(
+                  productDetail?.price -
+                    (productDetail?.price * productDetail.discountPercent) / 100
+                )}
+                .00
+              </span>
+            </p>
+          ) : (
+            <p className="mt-4 text-orange-500 flex gap-4 text-xl">
+              <span> ${productDetail?.price}.00 </span>
+            </p>
+          )}
+          <div className="my-2">
+            <p
+              className={`bg-blue-100 font-semibold rounded-lg p-2 inline-block ${
+                productDetail?.InStock > 10 ? "text-blue-800" : "text-red-800"
+              }`}
+            >
+              {productDetail?.InStock > 0
+                ? `InStock:${productDetail?.InStock}`
+                : "Out Of Stock"}
+            </p>
+          </div>
+          <div className="mt-3">
             <p>Color</p>
             <div className="flex gap-4 mt-2">
               <div className="w-5 h-5 rounded-full bg-red-500 hover:border-gray-500 border-2"></div>
@@ -218,18 +311,15 @@ export default function ProductPage() {
           </div>
           <div className="mt-2">
             <p>Quantity</p>
-            <div className="mt-2">
-              <input
-              value={productDetail?.qty}
-                type="number"
-                className="w-14 text-gray-500 border-2 border-gray-300 text-center"
-                
-              />
+            <div className="border-2 border-gray-600 w-16 h-6 relative overflow-hidden my-2 grid grid-cols-3 place-content-center text-center">
+              <button onClick={() => handleQty("INC")}>+</button>
+              <span>{qty}</span>
+              <button onClick={() => handleQty("DEC")}>-</button>
             </div>
             <div className="mt-2">
               <div className="flex gap-2">
                 <button
-                  onClick={toggleCart}
+                  onClick={AddToCart}
                   className="w-11/12 border-2 border-orange-600 bg-orange-500 text-white py-1"
                 >
                   Add to cart
@@ -325,7 +415,7 @@ export default function ProductPage() {
         <p className="text-center text-4xl mb-6 font-medium">
           Related Products
         </p>
-        <ScrollImage category={productDetail.category}></ScrollImage>
+        <ScrollImage relatedProducts={relatedProducts}></ScrollImage>
       </div>
       {showCart && <Cart CloseCart={CloseCart}></Cart>}
     </div>
