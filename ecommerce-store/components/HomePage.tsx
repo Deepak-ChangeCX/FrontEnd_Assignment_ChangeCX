@@ -4,54 +4,18 @@ import Link from "next/link";
 import { useContext } from "react";
 import AppContext from "@/context/context";
 import ProductIdContext from "@/context/ProductId";
-import { useRouter } from "next/router";
-import ToastContext from "@/context/ToastContext";
-import axios from "axios";
-import LoadingSpinner from "../Utils/Spinner";
-const URL = "http://localhost:9000";
-
 
 export default function HomePage() {
-  console.log(process.env.API_URL)
   type Product = {
     brand: string;
     price: number;
     images: string[];
   };
-  const router = useRouter();
-  const [Loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(1);
-  const { toast } = useContext(ToastContext) as any;
-  // const {products} = useContext(AppContext) as any;
+
+  const {products} = useContext(AppContext) as any;
   const productDetail = useContext(ProductIdContext) as any;
-  const CallRequest = async () => {
-    await axios
-      .get(`${URL}/api/v1/products?page=${page}`, {
-        headers: { authorization: localStorage.getItem("token") },
-      })
-      .then((res) => {
-        setLoading(false);
-        setProducts(res.data.products);
-      })
-      .catch((e) => {
-        setLoading(false);
-        toast.error(e.response.data.message);
-      });
-  };
+  
 
-  useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      toast.error("Not Authenticated Login Again");
-      router.push("/");
-    } else {
-      CallRequest();
-    }
-  }, [page]);
-
-  const handleNavigation = (id:any)=>{
-  router.push(`/Product?id=${id}`)
-  }
 
   return (
     <main>
@@ -143,7 +107,7 @@ export default function HomePage() {
       <section className="w-full flex h-80 md:h-80 gap-0 md:gap-1 flex-wrap md:flex-nowrap overflow-hidden ">
         <div className="w-1/2 md:w-2/6 h-40 md:h-80 overflow-hidden">
           <Image
-            className="object-top object-cover h-full"
+          className="object-top object-cover h-full"
             src="https://images.meesho.com/images/products/262187470/n19jr_512.jpg"
             alt="Image1"
             width={600}
@@ -152,7 +116,7 @@ export default function HomePage() {
         </div>
         <div className="w-1/2 md:w-2/6 h-40 md:h-80 overflow-hidden">
           <Image
-            className="object-top object-cover h-full"
+          className="object-top object-cover h-full"
             src="https://images.meesho.com/images/products/140406869/liouc_512.webp"
             alt="Image1"
             width={600}
@@ -161,7 +125,7 @@ export default function HomePage() {
         </div>
         <div className="w-full md:w-1/2 h-40 md:h-80 overflow-hidden mt-1 md:mt-0">
           <Image
-            className="object-top object-cover h-full"
+          className="object-top object-cover h-full"
             src="https://luxurylondon.co.uk/wp-content/uploads/2022/10/white-shirts-hero-1465x1099-c-center.jpg"
             alt="Image1"
             width={1200}
@@ -183,61 +147,38 @@ export default function HomePage() {
           <p className="text-5xl relative top-3">NEW ARRIVALS</p>
         </div>
       </section>
-      {Loading && <LoadingSpinner></LoadingSpinner>}
+
       {/* All Products  */}
       <section className="flex flex-wrap gap-5 mt-14 mb-14 justify-center">
-        {products?.map((items: any, idx: any) => (
-          <div
-            key={idx}
-            onClick={() => handleNavigation(items._id)}
-            className="w-64 h-auto border-2 py-2 border-gray-200 overflow-hidden px-2 shadow-lg relative"
-          >
+        {products?.map((items:any, idx:any) => (
+          <div key={idx} onClick={() => productDetail.handleData(items)} className="w-64 h-auto border-2 py-2 border-gray-200 overflow-hidden px-2 shadow-lg relative">
             <div>
               {/* <img src={items.images[0]} alt="shirts" className='w-64 h-64'/> */}
               <div className="w-64 h-64 overflow-hidden ">
-               
+                <Link href="/Product">
                   <Image
                     src={items.images[0]}
                     alt="shirts"
                     width={400}
                     height={200}
                   />
-                
+                </Link>
               </div>
-              <div
-                className={`${
-                  items.bestSeller ? "absolute" : "hidden"
-                } top-0 right-0 bg-orange-500 text-white px-2 rounded-bl-xl rounded-tr-xl shadow-lg`}
-              >
-                Best Seller
-              </div>
+              <div className={`${items.bestSeller ? "absolute" : "hidden"} top-0 right-0 bg-orange-500 text-white px-2 rounded-bl-xl rounded-tr-xl shadow-lg`}>Best Seller</div>
             </div>
-            <p>{items.title?.split("").splice(0, 20).join("")}</p>
+            <p>{items.name.split("").splice(0,20).join("")}</p>
             <p className="text-orange-500">${items.price}.00</p>
           </div>
         ))}
       </section>
 
       <div className="flex justify-center gap-2 items-center">
-        {page > 1 && (
-          <button
-            onClick={() => setPage(page - 1)}
-            className="border-2 bg-orange-500 text-white px-5 py-1 font-medium"
-          >
-            &lt;
-          </button>
-        )}
         <button className="border-2 border-orange-500 text-orange-500 px-10 py-1 font-medium">
-          <Link href="/Home">Shop All</Link>
+          <Link href="/Product">Shop All</Link>
         </button>
-        {products.length === 8 && (
-          <button
-            onClick={() => setPage(page + 1)}
-            className="border-2 bg-orange-500 text-white px-5 py-1 font-medium"
-          >
-            &gt;
-          </button>
-        )}
+        <button className="border-2 bg-orange-500 text-white px-5 py-1 font-medium">
+          &gt;
+        </button>
       </div>
     </main>
   );

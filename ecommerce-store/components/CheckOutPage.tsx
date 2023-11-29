@@ -1,110 +1,74 @@
-import { AddToCartContext } from "@/context/AddToCartContext";
+import AddToCartContext from "@/context/CartContext";
 import Link from "next/link";
 import AppContext from "@/context/context";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import ProductIdContext from "@/context/ProductId";
-import axios from "axios";
-import ToastContext from "@/context/ToastContext";
-import EmptyCart from "./EmptyCart";
-import { useRouter } from "next/router";
-import OrderSummary from "./OrderSummary";
-const URL = "http://localhost:9000";
-
 export default function CheckOut() {
   const cartValue = useContext(AddToCartContext) as any;
-  const {toast} = useContext(ToastContext) as any;
   const ProductContext = useContext(ProductIdContext) as any;
   const cart = cartValue.state.cartItems;
-  const router = useRouter()
-useEffect(()=>{
-  if(!localStorage.getItem("token")){
-    router.push("/")
-  }
-},[])
 
-const handleNavigation = (id:any)=>{
- router.push(`/Product?id=${id}`)
-}
-  // const [cart , setCart] = useState([]);
-
-  // const handleDeleteItem = (product: any) => {
-  //   // const FilterList = cart.filter((items: any) => items._id !== product._id);
-  //   // cartValue.setCartItems(FilterList);
-  // };
-
-  useEffect(()=>{
-   axios
-    .get(`${URL}/api/v1/user/cartItems`, {
-      headers: { authorization: localStorage.getItem("token") },
-    })
-    .then((res) => {
-      // console.log(res.data)
-      cartValue.setCartItems(res.data.CartItems);
-    })
-    .catch((e) => {
-
-      toast.error(e.response.data.message);
-    });
-  },[])
+  const handleDeleteItem = (product: any) => {
+    const FilterList = cart.filter((items: any) => items.id !== product.id);
+    cartValue.setCartItems(FilterList);
+  };
 
   return (
     <div className="px-5 mt-10 lg:pl-48">
-    
       <div className="flex flex-wrap gap-10">
         <div className="w-full lg:w-3/5">
           <p className="border-gray-500 border-b-2 pb-4 text-lg">My cart</p>
           {/* product added */}
-          {cart?.length < 1 && <EmptyCart></EmptyCart>}
           {cart?.map((items: any, idx: any) => (
             <div
               className="border-b-2 border-gray-500 pb-4"
               key={idx}
-            
+              onClick={() => ProductContext.handleData(items)}
             >
               <div className="mt-4 flex">
                 <div>
-                  {/* <Link href="/Product"> */}
+                  <Link href="/Product">
                     <Image
-                     onClick={()=>handleNavigation(items._id)}
                       className="inline-block w-24 h-28"
                       src={items.images[0]}
                       alt="ProductImage"
                       width={600}
                       height={600}
                     />
-                  {/* </Link> */}
+                  </Link>
                 </div>
                 <div className="ml-4 w-4/5">
                   <div className="flex gap-5 items-center">
                     <p className="mr-auto">
-                      {items.title?.split("").splice(0, 15).join("")}
+                      {items.name?.split("").splice(0, 15).join("")}
                     </p>
                     <div className="border-2 border-gray-600 w-16 h-6 relative overflow-hidden grid grid-cols-3 place-content-center text-center">
-                      <button onClick={() => cartValue.IncreaseQty(items._id)}>
+                      <button onClick={() => cartValue.IncreaseQty(items.id)}>
                         +
                       </button>
-                      <span>{items.quantity}</span>
-                      <button onClick={() => cartValue.DecreseQty(items._id)}>
+                      <span>{items.qty}</span>
+                      <button onClick={() => cartValue.DecreseQty(items.id)}>
                         -
                       </button>
                     </div>
                     <div className="text-gray-gray-600">
                       $
-                      { Math.ceil(items.price - (items.price * items.discountPercent) / 100)}
+                      {items.qty *
+                        Math.ceil(items.price - (items.price * 10) / 100)}
                       .00
                     </div>
                     <div
                       className="text-gray-600 cursor-pointer"
-                      onClick={() => cartValue.handleDeleteItem(items._id)}
+                      onClick={() => handleDeleteItem(items)}
                     >
                       X
                     </div>
                   </div>
                   <p className="mt-4">
                     $
-                    {items.quantity *
-                      Math.ceil(items.price - (items.price * items.discountPercent) / 100)}
+                    {items.qty *
+                      Math.ceil(items.price - (items.price * 10) / 100)}
                     .00
                   </p>
                   <p className="text-gray-500">Size: Medium</p>
@@ -113,7 +77,52 @@ const handleNavigation = (id:any)=>{
             </div>
           ))}
         </div>
-       <OrderSummary></OrderSummary>
+        <div className="w-full lg:w-1/3 ">
+          <p className="border-gray-500 border-b-2 pb-4 text-lg">
+            Order Summary
+          </p>
+          <div className="border-gray-500 border-b-2 pb-2">
+            <div className="flex mt-6 text-gray-600">
+              <p className="mr-auto">Subtotal</p>
+              <p>${cartValue.state.total}.00</p>
+            </div>
+            <p className="underline mt-2">Estimate Shipping</p>
+          </div>
+          <div className="flex text-xl mt-5 mb-8">
+            <p className="mr-auto">Total</p>
+            <p className="font-bold text-orange-500">
+              ${cartValue.state.total}.00
+            </p>
+          </div>
+          <div className="text-center">
+            <button
+              onClick={() => cartValue.EmptyCart()}
+              className="w-full border-2 border-orange-600 py-2 text-white bg-orange-500"
+            >
+              CheckOut
+            </button>
+          </div>
+          <div className="flex items-center justify-center font-bold mb-4 mt-4 text-gray-950">
+            <span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                className="bi bi-lock-fill"
+                viewBox="0 0 16 16"
+                id="IconChangeColor"
+              >
+                {" "}
+                <path
+                  d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+                  id="mainIconPathAttribute"
+                ></path>{" "}
+              </svg>
+            </span>
+            Secure CheckOut
+          </div>
+        </div>
       </div>
       <div className="grid-cols-1 gap-2 absolute top-40 right-10 m-0 hidden lg:grid">
         <svg

@@ -1,4 +1,4 @@
-import ProductPage from "@/components/PDP/ProductPage";
+import ProductPage from "@/components/ProductPage";
 
 export default function Product(){
    return <ProductPage></ProductPage>

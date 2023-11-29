@@ -1,9 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import {AddToCartContext} from "@/context/AddToCartContext";
-import axios from "axios";
-const URL = "http://localhost:9000";
+import AddToCartContext from "@/context/CartContext";
 
 interface CartProps {
   CloseCart: () => void;
@@ -17,34 +15,7 @@ interface CartItem {
 export default function Cart({ CloseCart }: CartProps) {
   const value = useContext(AddToCartContext) as any;
   const CartContext = useContext(AddToCartContext) as any;
-  // const ProductItems = value.state.cartItems;
-
-  const [ProductItems, setProductItem] = useState([]);
-  const [total , setTotal] = useState(0)
-
-  useEffect(()=>{
-    axios
-    .get(`${URL}/api/v1/user/cartItems`, {
-      headers: { authorization: localStorage.getItem("token") },
-    })
-    .then((res) => {
-      // console.log(res.data)
-      let newTotal = 0;
-      res.data.CartItems.forEach((item: any) => {
-        newTotal +=
-          Math.ceil(item.price - (item.price * item.discountPercent) / 100) * item.quantity;
-      });
-      // console.log(newTotal)
-      setTotal(newTotal);
-      setProductItem(res.data.CartItems);
-    })
-    .catch((e) => {
-
-      // toast.error(e.response.data.message);
-    });
-
-  },[CartContext.state.cartItems])
-
+  const ProductItems = value.state.cartItems;
 
   return (
     <div className="fixed top-0 right-0 w-full lg:w-1/4 h-full shadow-lg bg-white">
@@ -72,21 +43,21 @@ export default function Cart({ CloseCart }: CartProps) {
               <div className="ml-4 w-4/5">
                 <div className="flex gap-5 items-center">
                   <p className="mr-auto">
-                    {items.title?.split("").splice(0, 10).join("")}
+                    {items.name?.split("").splice(0, 10).join("")}
                   </p>
                 </div>
                 <p className="mt-2">
                   $
-                  {items?.quantity *
-                    Math.ceil(items?.price - (items?.price * items?.discountPercent) / 100)}
+                  {items.qty *
+                    Math.ceil(items.price - (items.price * 10) / 100)}
                   .00
                 </p>
                 <div className="border-2 border-gray-600 w-16 h-6 relative overflow-hidden grid grid-cols-3 place-content-center text-center">
-                  <button onClick={() => CartContext.IncreaseQty(items._id)}>
+                  <button onClick={() => CartContext.IncreaseQty(items.id)}>
                     +
                   </button>
-                  <span>{items.quantity}</span>
-                  <button onClick={() => CartContext.DecreseQty(items._id)}>
+                  <span>{items.qty}</span>
+                  <button onClick={() => CartContext.DecreseQty(items.id)}>
                     -
                   </button>
                 </div>
@@ -100,12 +71,12 @@ export default function Cart({ CloseCart }: CartProps) {
 
       <div className="text-2xl pb-5 border-b-2 mt-10 border-gray-200">
         <p className="ml-4">Subtotal</p>
-        <p className="ml-4">${total}.00</p>
+        <p className="ml-4">${value.state.total}.00</p>
       </div>
 
       <div className="m-4">
         <button className="w-full h-auto bg-orange-500 border-2 border-orange-500 text-white">
-          <Link href="/Cart">View Cart</Link>
+          <Link href="/Checkout">View Cart</Link>
         </button>
       </div>
     </div>

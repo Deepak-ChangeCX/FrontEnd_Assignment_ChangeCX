@@ -1,10 +1,10 @@
 import { Inter } from 'next/font/google'
-import LoginPage from '@/components/LoginPage/LoginPage'
+import HomePage from '@/components/HomePage'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Login() {
+export default function Home() {
   return (
-    <LoginPage></LoginPage>
+    <HomePage></HomePage>
   )
 }

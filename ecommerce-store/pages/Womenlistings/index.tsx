@@ -1,4 +1,4 @@
-import WomenPage from "@/components/PLP/WomenListing";
+import WomenPage from "@/components/WomenListing";
 
 
 export default function listPage(){
