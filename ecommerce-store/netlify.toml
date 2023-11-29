@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/Menlistings"
+  to = "/Womenlistings"
+  status = 200
+  force = true
