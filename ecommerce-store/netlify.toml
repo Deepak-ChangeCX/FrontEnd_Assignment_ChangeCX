@@ -1,6 +1,12 @@
 [[redirects]]
-  from = "/Menlistings"
+  from = "/Men"
   to = "/Womenlistings"
+  status = 301
+  force = true
+
+   [[redirects]]
+  from = "/menlistings/*"
+  to = "/womenlistings"
   status = 200
   force = true
 
